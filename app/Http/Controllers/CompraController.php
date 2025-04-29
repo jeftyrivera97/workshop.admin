@@ -49,6 +49,13 @@ class CompraController extends Controller
         }
     }
 
+    public function index_api()
+    {
+        $compras = Compra::all();
+        return response()-> json($compras);
+
+    }
+
     /**
      * Show the form for creating a new resource.
      */
