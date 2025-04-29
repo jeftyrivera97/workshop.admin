@@ -9,7 +9,7 @@ use App\Models\Proveedor;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Http\Resources\CompraResource;
-
+use Exception;
 
 class CompraController extends Controller
 {
@@ -18,8 +18,7 @@ class CompraController extends Controller
      */
     public function index(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -40,20 +39,19 @@ class CompraController extends Controller
 
         if ($request->has("query")) {
             $query =  $request->get("query");
-            $data = CompraResource::collection(Compra::where("fecha", "like", "$query%")->orWhere("codigo_compra)", "like", "$query%")->orWhere("descripcion", "like", "$query%")->where('id_estado',1)->orderBy('fecha','desc')->paginate(50));
-            return Inertia::render('compra/index', compact('data', 'contador', 'tableHeaders','modulo'));
+            $data = CompraResource::collection(Compra::where("fecha", "like", "$query%")->orWhere("codigo_compra)", "like", "$query%")->orWhere("descripcion", "like", "$query%")->where('id_estado', 1)->orderBy('fecha', 'desc')->paginate(50));
+            return Inertia::render('compra/index', compact('data', 'contador', 'tableHeaders', 'modulo'));
         } else {
 
-            $data = CompraResource::collection(Compra::where('id_estado',1)->orderBy('fecha','desc')->paginate(50));
-            return Inertia::render('compra/index', compact('data', 'contador', 'tableHeaders','modulo','head'));
+            $data = CompraResource::collection(Compra::where('id_estado', 1)->orderBy('fecha', 'desc')->paginate(50));
+            return Inertia::render('compra/index', compact('data', 'contador', 'tableHeaders', 'modulo', 'head'));
         }
     }
 
     public function index_api()
     {
         $compras = Compra::all();
-        return response()-> json($compras);
-
+        return response()->json($compras);
     }
 
     /**
@@ -61,16 +59,15 @@ class CompraController extends Controller
      */
     public function create()
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $head = "Crear Compra";
-        $proveedores = Proveedor::where('id_estado',1)->get();
-        $categorias = CompraCategoria::where('id_estado',1)->get();
+        $proveedores = Proveedor::where('id_estado', 1)->get();
+        $categorias = CompraCategoria::where('id_estado', 1)->get();
 
-        return Inertia::render('compra/create', compact('head','proveedores','categorias'));
+        return Inertia::render('compra/create', compact('head', 'proveedores', 'categorias'));
     }
 
     /**
@@ -78,69 +75,69 @@ class CompraController extends Controller
      */
     public function store(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario= Auth::id();
-        $codigo= $request->codigo_compra;
-        $total = $request->total;
-        $isv15= $total/1.15;
-        $gravado15 = $total = $isv15;
-        $isv15 = number_format($isv15, 2, '.', '');
-        $gravado15 = number_format($gravado15, 2, '.', '');
+        try {
+            $id_usuario = Auth::id();
+            $codigo = $request->codigo_compra;
+            $total = $request->total;
+            $isv15 = $total / 1.15;
+            $gravado15 = $total = $isv15;
+            $isv15 = number_format($isv15, 2, '.', '');
+            $gravado15 = number_format($gravado15, 2, '.', '');
 
-        if (Compra::where('codigo_compra', $codigo)->exists()) {
-            return redirect()->route('compra.index')->with('message','Compra NO guardada - Codigo Factura ya existe');
-         }
+            if (Compra::where('codigo_compra', $codigo)->exists()) {
+                return redirect()->route('compra.index')->with('message', 'Compra NO guardada - Codigo Factura ya existe');
+            }
 
-         Compra::create([
-            'codigo_compra' => $request->codigo_compra,
-            'fecha' => $request->fecha,
-            'descripcion' => $request->descripcion,
-            'id_categoria' => $request->id_categoria,
-            'id_proveedor' => $request->id_proveedor,
-            'id_tipo_cuenta' => 1,
-            'id_estado_cuenta' => 1,
-            'fecha_pago' => $request->fecha,
-            'gravado15' => $gravado15,
-            'gravado18' => '0',
-            'impuesto15' => $isv15,
-            'impuesto18' => '0',
-            'exento' => '0',
-            'exonerado' => '0',
-            'total' => $request->total,
-            'id_estado' =>  1,
-            'id_usuario' =>  $id_usuario,
-          ]);
+            Compra::create([
+                'codigo_compra' => $request->codigo_compra,
+                'fecha' => $request->fecha,
+                'descripcion' => $request->descripcion,
+                'id_categoria' => $request->id_categoria,
+                'id_proveedor' => $request->id_proveedor,
+                'id_tipo_cuenta' => 1,
+                'id_estado_cuenta' => 1,
+                'fecha_pago' => $request->fecha,
+                'gravado15' => $gravado15,
+                'gravado18' => '0',
+                'impuesto15' => $isv15,
+                'impuesto18' => '0',
+                'exento' => '0',
+                'exonerado' => '0',
+                'total' => $request->total,
+                'id_estado' =>  1,
+                'id_usuario' =>  $id_usuario,
+            ]);
 
-          return redirect()->route('compra.index')->with('message','Compra agregada con exito');
+            return redirect()->route('compra.index')->with('message', 'Compra agregada con exito');
+        } catch (Exception $e) {
+            return redirect()->route('compras.create')
+                ->with('error', 'Operacion Fallida: ' . $e->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-
-    }
+    public function show(string $id) {}
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $data = Compra::findOrFail($id);
         $head = "Editar Compra";
-        $proveedores = Proveedor::where('id_estado',1)->get();
-        $categorias = CompraCategoria::where('id_estado',1)->get();
-        return Inertia::render('compra/edit', compact('data','head','proveedores','categorias'));
+        $proveedores = Proveedor::where('id_estado', 1)->get();
+        $categorias = CompraCategoria::where('id_estado', 1)->get();
+        return Inertia::render('compra/edit', compact('data', 'head', 'proveedores', 'categorias'));
     }
 
     /**
@@ -148,40 +145,44 @@ class CompraController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario= Auth::id();
-        $compra= Compra::findOrFail($id);
-        $total = $request->total;
-        $isv15= $total/1.15;
-        $gravado15 = $total = $isv15;
-        $isv15 = number_format($isv15, 2, '.', '');
-        $gravado15 = number_format($gravado15, 2, '.', '');
+        try {
+            $id_usuario = Auth::id();
+            $compra = Compra::findOrFail($id);
+            $total = $request->total;
+            $isv15 = $total / 1.15;
+            $gravado15 = $total = $isv15;
+            $isv15 = number_format($isv15, 2, '.', '');
+            $gravado15 = number_format($gravado15, 2, '.', '');
 
-         $compra->update([
-            'codigo_compra' => $request->codigo_compra,
-            'fecha' => $request->fecha,
-            'descripcion' => $request->descripcion,
-            'id_categoria' => $request->id_categoria,
-            'id_proveedor' => $request->id_proveedor,
-            'id_tipo_cuenta' => 1,
-            'id_estado_cuenta' => 1,
-            'fecha_pago' => $request->fecha,
-            'gravado15' => $gravado15,
-            'gravado18' => '0',
-            'impuesto15' => $isv15,
-            'impuesto18' => '0',
-            'exento' => '0',
-            'exonerado' => '0',
-            'total' => $request->total,
-            'id_estado' =>  1,
-            'id_usuario' =>  $id_usuario,
-          ]);
+            $compra->update([
+                'codigo_compra' => $request->codigo_compra,
+                'fecha' => $request->fecha,
+                'descripcion' => $request->descripcion,
+                'id_categoria' => $request->id_categoria,
+                'id_proveedor' => $request->id_proveedor,
+                'id_tipo_cuenta' => 1,
+                'id_estado_cuenta' => 1,
+                'fecha_pago' => $request->fecha,
+                'gravado15' => $gravado15,
+                'gravado18' => '0',
+                'impuesto15' => $isv15,
+                'impuesto18' => '0',
+                'exento' => '0',
+                'exonerado' => '0',
+                'total' => $request->total,
+                'id_estado' =>  1,
+                'id_usuario' =>  $id_usuario,
+            ]);
 
-          return redirect()->route('compra.index')->with('message','Compra actualizada con exito');
+            return redirect()->route('compra.index')->with('message', 'Compra actualizada con exito');
+        } catch (Exception $e) {
+            return redirect()->route('users.create')
+                ->with('error', 'Operacion fallida: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -189,25 +190,23 @@ class CompraController extends Controller
      */
     public function destroy(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $compra = Compra::findOrFail($id);
-        $compra-> id_estado =2;
+        $compra->id_estado = 2;
         $compra->save();
 
         $compra = Compra::findOrFail($id);
         $compra->delete();
 
-        return redirect()->route('compra.index')->with('message','Compra eliminada con exito');
+        return redirect()->route('compra.index')->with('message', 'Compra eliminada con exito');
     }
 
     public function import(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
         $file = $request->file('file');
