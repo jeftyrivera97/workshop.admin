@@ -19,7 +19,7 @@ class AutoResource extends JsonResource
             'id' => $this->id,
             'id_marca' => AutoMarcaResource::collection($this->marcas),
             'modelo' => $this->modelo,
-            'year' => $this->modelo,
+            'year' => $this->year,
             'base' => $this->base,
             'traccion' => $this->traccion,
             'cilindraje' => $this->cilindraje,

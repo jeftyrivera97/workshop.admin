@@ -14,7 +14,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('auto.index'),
     },
 ];
-const props = defineProps({
+defineProps({
     contador: { type: String, required: true },
     head: { type: String, required: true },
     modulo: { type: String, required: true },
