@@ -116,7 +116,7 @@ const form = useForm({
                             <SelectGroup v-for="auto in autos" :value="auto.id" :key="auto.id">
                                 <SelectLabel>Automoviles</SelectLabel>
                                 <SelectItem v-for="marca in auto.marcas" :value="auto.id" :key="marca.id">
-                                    {{ marca.descripcion }} {{auto.modelo}}
+                                      {{ marca.descripcion }} {{ auto.modelo }} {{ auto.year }}
                                 </SelectItem>
 
                             </SelectGroup>
