@@ -7,6 +7,7 @@ use App\Models\Proveedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class ProveedorController extends Controller
 {
@@ -15,8 +16,7 @@ class ProveedorController extends Controller
      */
     public function index(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -49,15 +49,23 @@ class ProveedorController extends Controller
      */
     public function create()
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
         $head = "Crear Proveedor";
-        $categorias = collect(['Accesorios','Accesorios y Repuestos Varios','Electricidad','Llanteria','Pintura Automotriz',
-        'Materiales Automotriz','Repuestos y Refracciones','Refrigeracion','Tornilleria']);
+        $categorias = collect([
+            'Accesorios',
+            'Accesorios y Repuestos Varios',
+            'Electricidad',
+            'Llanteria',
+            'Pintura Automotriz',
+            'Materiales Automotriz',
+            'Repuestos y Refracciones',
+            'Refrigeracion',
+            'Tornilleria'
+        ]);
 
-        return Inertia::render('proveedor/create', compact('head','categorias'));
+        return Inertia::render('proveedor/create', compact('head', 'categorias'));
     }
 
     /**
@@ -65,31 +73,35 @@ class ProveedorController extends Controller
      */
     public function store(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario = Auth::id();
-        $registro = now();
+        try {
+            $id_usuario = Auth::id();
+            $registro = now();
 
-        $codigo = $request->codigo_proveedor;
+            $codigo = $request->codigo_proveedor;
 
-        if (Proveedor::where('codigo_proveedor', $codigo)->exists()) {
-            return redirect()->route('proveedor.index')->with('message', 'Proveedor NO guardado - RTN ya existe');
+            if (Proveedor::where('codigo_proveedor', $codigo)->exists()) {
+                return redirect()->route('proveedor.index')->with('message', 'Proveedor NO guardado - RTN ya existe');
+            }
+
+            Proveedor::create([
+                'codigo_proveedor' => $request->codigo_proveedor,
+                'descripcion' => $request->descripcion,
+                'categoria' => $request->categoria,
+                'contacto' => $request->contacto,
+                'telefono' => $request->telefono,
+                'id_estado' =>  1,
+                'id_usuario' =>  $id_usuario,
+            ]);
+
+            return redirect()->route('proveedor.index')->with('message', 'Proveedor agregado con exito');
+        } catch (\Throwable $th) {
+            Log::error('Error guardando proveedor: ' . $th->getMessage());
+            return redirect()->route('proveedor.index')->with('error', 'Error al guardar el proveedor: ' . $th->getMessage());
         }
-
-        Proveedor::create([
-            'codigo_proveedor' => $request->codigo_proveedor,
-            'descripcion' => $request->descripcion,
-            'categoria' => $request->categoria,
-            'contacto' => $request->contacto,
-            'telefono' => $request->telefono,
-            'id_estado' =>  1,
-            'id_usuario' =>  $id_usuario,
-        ]);
-
-        return redirect()->route('proveedor.index')->with('message', 'Proveedor agregado con exito');
     }
 
     /**
@@ -105,17 +117,25 @@ class ProveedorController extends Controller
      */
     public function edit(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $data = Proveedor::findOrFail($id);
         $head = "Editar Proveedor";
-        $categorias = collect(['Accesorios','Accesorios y Repuestos Varios','Electricidad','Llanteria','Pintura Automotriz',
-        'Materiales Automotriz','Repuestos y Refracciones','Refrigeracion','Tornilleria']);
+        $categorias = collect([
+            'Accesorios',
+            'Accesorios y Repuestos Varios',
+            'Electricidad',
+            'Llanteria',
+            'Pintura Automotriz',
+            'Materiales Automotriz',
+            'Repuestos y Refracciones',
+            'Refrigeracion',
+            'Tornilleria'
+        ]);
 
-        return Inertia::render('proveedor/edit', compact('data', 'head','categorias'));
+        return Inertia::render('proveedor/edit', compact('data', 'head', 'categorias'));
     }
 
     /**
@@ -123,25 +143,29 @@ class ProveedorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario = Auth::id();
-        $registro = now();
+        try {
+            $id_usuario = Auth::id();
+            $registro = now();
 
-        $proveedor = Proveedor::findOrFail($id);
-        $proveedor->update([
-            'codigo_proveedor' => $request->codigo_proveedor,
-            'descripcion' => $request->descripcion,
-            'categoria' => $request->categoria,
-            'contacto' => $request->contacto,
-            'telefono' => $request->telefono,
-            'id_usuario' =>  $id_usuario,
-        ]);
+            $proveedor = Proveedor::findOrFail($id);
+            $proveedor->update([
+                'codigo_proveedor' => $request->codigo_proveedor,
+                'descripcion' => $request->descripcion,
+                'categoria' => $request->categoria,
+                'contacto' => $request->contacto,
+                'telefono' => $request->telefono,
+                'id_usuario' =>  $id_usuario,
+            ]);
 
-        return redirect()->route('proveedor.index')->with('message', 'Proveedor actualizado con exito');
+            return redirect()->route('proveedor.index')->with('message', 'Proveedor actualizado con exito');
+        } catch (\Throwable $th) {
+            Log::error('Error actualizando proveedor: ' . $th->getMessage());
+            return redirect()->route('proveedor.index')->with('error', 'Error al actualizar el proveedor: ' . $th->getMessage());
+        }
     }
 
     /**
@@ -149,8 +173,7 @@ class ProveedorController extends Controller
      */
     public function destroy(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -167,8 +190,7 @@ class ProveedorController extends Controller
 
     public function import(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 

@@ -10,11 +10,12 @@ import ResponseMessage from '@/components/shared/flash-message.vue'
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Ingreso',
+        title: 'Ingresos',
         href: route('ingreso.index'),
     },
 ];
-const props = defineProps({
+
+defineProps({
     contador: { type: String, required: true },
     head: { type: String, required: true },
     modulo: { type: String, required: true },

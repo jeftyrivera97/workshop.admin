@@ -34,34 +34,51 @@ console.log(props.data);
 </script>
 
 <template>
-    <form @submit.prevent="form.put(route('gasto.update', data.id))">
+    <form @submit.prevent="form.put(route('planilla.update', data.id))">
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="descripcion">Fecha</Label>
-                    <Input type="date" id="fecha" name="fecha" v-model="form.fecha" placeholder="Ingrese Fecha"
-                        required />
+                    <Label for="fecha">Fecha</Label>
+                    <Input 
+                        type="date" 
+                        id="fecha" 
+                        name="fecha" 
+                        v-model="form.fecha" 
+                        placeholder="Ingrese Fecha"
+                        required 
+                    />
                 </div>
             </div>
+            
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="descripcion">Descripcion</Label>
-                    <Input type="text" id="descripcion" name="descripcion" v-model="form.descripcion"
-                        placeholder="Ingrese Descripcion" required />
+                    <Label for="descripcion">Descripción</Label>
+                    <Input 
+                        type="text" 
+                        id="descripcion" 
+                        name="descripcion" 
+                        v-model="form.descripcion"
+                        placeholder="Ingrese Descripción" 
+                        required 
+                    />
                 </div>
             </div>
 
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="id_empleado">Empleado</Label>
+                    <Label for="id_empleado">Empleado</Label>
                     <Select v-model="form.id_empleado" required>
                         <SelectTrigger>
-                            <SelectValue />
+                            <SelectValue placeholder="Seleccione un empleado" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Empleados</SelectLabel>
-                                <SelectItem v-for="option in empleados" :value="option.id">
+                                <SelectItem 
+                                    v-for="option in empleados" 
+                                    :key="option.id" 
+                                    :value="option.id"
+                                >
                                     {{ option.descripcion }}
                                 </SelectItem>
                             </SelectGroup>
@@ -69,17 +86,22 @@ console.log(props.data);
                     </Select>
                 </div>
             </div>
+            
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="id_categoria">Categoria</Label>
+                    <Label for="id_categoria">Categoría</Label>
                     <Select v-model="form.id_categoria" required>
                         <SelectTrigger>
-                            <SelectValue placeholder="Seleccione una Categoria" />
+                            <SelectValue placeholder="Seleccione una categoría" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectGroup>
-                                <SelectLabel>Empleados</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectLabel>Categorías</SelectLabel>
+                                <SelectItem 
+                                    v-for="option in categorias" 
+                                    :key="option.id" 
+                                    :value="option.id"
+                                >
                                     {{ option.descripcion }}
                                 </SelectItem>
                             </SelectGroup>
@@ -87,35 +109,47 @@ console.log(props.data);
                     </Select>
                 </div>
             </div>
+            
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="total">Total</Label>
-                    <Input type="text" id="total" name="total" v-model="form.total"
-                        placeholder="Ingrese Total L. Factura" required />
+                    <Label for="total">Total</Label>
+                    <Input 
+                        type="number" 
+                        id="total" 
+                        name="total" 
+                        v-model="form.total"
+                        placeholder="Ingrese Total L. Planilla" 
+                        step="0.01"
+                        min="0"
+                        required 
+                    />
                 </div>
             </div>
+            
             <div>
-                   <!-- empty column -->
+                <!-- empty column -->
             </div>
 
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="accion">Accion</Label>
-                    <Button type="submit">
-                        <Save />Guardar Planilla
+                    <Label for="submit">Acción</Label>
+                    <Button type="submit" :disabled="form.processing">
+                        <Save class="mr-2 h-4 w-4" />
+                        {{ form.processing ? 'Guardando...' : 'Guardar Planilla' }}
                     </Button>
                 </div>
-
             </div>
 
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="accion">Accion</Label>
-                    <Link href="/planilla"> <Button variant="destructive">
-                        <CircleArrowLeft />Regresar
-                    </Button></Link>
+                    <Label for="back">Navegación</Label>
+                    <Link href="/planilla"> 
+                        <Button variant="destructive" type="button">
+                            <CircleArrowLeft class="mr-2 h-4 w-4" />
+                            Regresar
+                        </Button>
+                    </Link>
                 </div>
-
             </div>
 
             <div>

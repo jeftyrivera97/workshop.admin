@@ -3,13 +3,11 @@
 import { Button } from '@/components/ui/button'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { reactive } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { CircleArrowLeft } from 'lucide-vue-next';
 import { Save } from 'lucide-vue-next';
 import { Link } from '@inertiajs/vue3'
-import { ref } from 'vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, } from '@/components/ui/select'
 
 const props = defineProps({
@@ -76,7 +74,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -102,7 +100,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Clientes</SelectLabel>
-                                <SelectItem v-for="option in clientes" :value="option.id">
+                                <SelectItem v-for="option in clientes" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -119,11 +117,10 @@ function submit() {
                             <SelectValue placeholder="Seleccione un Auto" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectGroup v-for="auto in autos" :value="auto.id">
-                                <SelectItem v-for="marca in auto.marcas" :value="auto.id">
+                            <SelectGroup v-for="auto in autos" :value="auto.id" :key="auto.id">
+                                <SelectItem v-for="marca in auto.marcas" :value="auto.id" :key="marca.id">
                                     {{ marca.descripcion }} {{ auto.modelo }}
                                 </SelectItem>
-
                             </SelectGroup>
                         </SelectContent>
                     </Select>
@@ -140,7 +137,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in servicios" :value="option.id">
+                                <SelectItem v-for="option in servicios" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -159,7 +156,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Tipos de Pagos</SelectLabel>
-                                <SelectItem v-for="option in pagos_categorias" :value="option.id">
+                                <SelectItem v-for="option in pagos_categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -178,7 +175,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Colores</SelectLabel>
-                                <SelectItem v-for="option in colores" :value="option">
+                                <SelectItem v-for="option in colores" :value="option" :key="option">
                                     {{ option }}
                                 </SelectItem>
 

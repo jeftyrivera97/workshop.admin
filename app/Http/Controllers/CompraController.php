@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 use App\Http\Resources\CompraResource;
 use Exception;
+use Illuminate\Support\Facades\Log;
 
 class CompraController extends Controller
 {
@@ -38,8 +39,17 @@ class CompraController extends Controller
         $contador = "$contador Compras en existencia";
 
         if ($request->has("query")) {
-            $query =  $request->get("query");
-            $data = CompraResource::collection(Compra::where("fecha", "like", "$query%")->orWhere("codigo_compra)", "like", "$query%")->orWhere("descripcion", "like", "$query%")->where('id_estado', 1)->orderBy('fecha', 'desc')->paginate(50));
+            $query = $request->get("query");
+            $data = CompraResource::collection(
+                Compra::where('id_estado', 1)
+                    ->where(function ($q) use ($query) {
+                        $q->where("fecha", "like", "%$query%")
+                            ->orWhere("codigo_compra", "like", "%$query%")
+                            ->orWhere("descripcion", "like", "%$query%");
+                    })
+                    ->orderBy('fecha', 'desc')
+                    ->paginate(50)
+            );
             return Inertia::render('compra/index', compact('data', 'contador', 'tableHeaders', 'modulo'));
         } else {
 
@@ -75,22 +85,27 @@ class CompraController extends Controller
      */
     public function store(Request $request)
     {
+
         if (!Auth::check()) {
             return redirect('/login');
         }
 
         try {
-            $id_usuario = Auth::id();
+
             $codigo = $request->codigo_compra;
+            $id_usuario = Auth::id();
             $total = $request->total;
-            $isv15 = $total / 1.15;
-            $gravado15 = $total = $isv15;
-            $isv15 = number_format($isv15, 2, '.', '');
-            $gravado15 = number_format($gravado15, 2, '.', '');
 
             if (Compra::where('codigo_compra', $codigo)->exists()) {
                 return redirect()->route('compra.index')->with('message', 'Compra NO guardada - Codigo Factura ya existe');
             }
+
+            // Cálculo correcto de impuestos
+            $gravado15 = $total / 1.15;
+            $isv15 = $total - $gravado15;
+
+            $isv15 = number_format($isv15, 2, '.', '');
+            $gravado15 = number_format($gravado15, 2, '.', '');
 
             Compra::create([
                 'codigo_compra' => $request->codigo_compra,
@@ -113,9 +128,10 @@ class CompraController extends Controller
             ]);
 
             return redirect()->route('compra.index')->with('message', 'Compra agregada con exito');
+
         } catch (Exception $e) {
-            return redirect()->route('compras.create')
-                ->with('error', 'Operacion Fallida: ' . $e->getMessage());
+            Log::error('Error guardando la compra: ' . $e->getMessage());
+            return redirect()->route('compra.index')->with('error', 'Error al guardar la compra: ' . $e->getMessage());
         }
     }
 
@@ -153,8 +169,11 @@ class CompraController extends Controller
             $id_usuario = Auth::id();
             $compra = Compra::findOrFail($id);
             $total = $request->total;
-            $isv15 = $total / 1.15;
-            $gravado15 = $total = $isv15;
+
+            // Cálculo correcto de impuestos
+            $gravado15 = $total / 1.15;
+            $isv15 = $total - $gravado15;
+
             $isv15 = number_format($isv15, 2, '.', '');
             $gravado15 = number_format($gravado15, 2, '.', '');
 
@@ -180,8 +199,8 @@ class CompraController extends Controller
 
             return redirect()->route('compra.index')->with('message', 'Compra actualizada con exito');
         } catch (Exception $e) {
-            return redirect()->route('users.create')
-                ->with('error', 'Operacion fallida: ' . $e->getMessage());
+            Log::error('Error actualizando la compra: ' . $e->getMessage());
+            return redirect()->route('compra.index')->with('error', 'Error al actualizar la compra: ' . $e->getMessage());
         }
     }
 
@@ -198,8 +217,9 @@ class CompraController extends Controller
         $compra->id_estado = 2;
         $compra->save();
 
-        $compra = Compra::findOrFail($id);
-        $compra->delete();
+        // Eliminar la duplicación innecesaria
+        // $compra = Compra::findOrFail($id);
+        // $compra->delete();
 
         return redirect()->route('compra.index')->with('message', 'Compra eliminada con exito');
     }
@@ -209,37 +229,47 @@ class CompraController extends Controller
         if (!Auth::check()) {
             return redirect('/login');
         }
-        $file = $request->file('file');
-        $fileContents = file($file->getPathname());
 
-        foreach ($fileContents as $line) {
-            $data = str_getcsv($line);
+        $request->validate([
+            'file' => 'required|file|mimes:csv,txt|max:2048'
+        ]);
 
-            Compra::create([
-                'id' => $data[0],
-                'codigo_compra' => $data[1],
-                'fecha' => $data[2],
-                'descripcion' => $data[3],
-                'id_categoria' => $data[4],
-                'id_proveedor' => $data[5],
-                'id_tipo_cuenta' => $data[6],
-                'id_estado_cuenta' => $data[7],
-                'fecha_pago' => $data[8],
-                'gravado15' => $data[9],
-                'gravado18' => $data[10],
-                'impuesto15' => $data[11],
-                'impuesto18' => $data[12],
-                'exento' => $data[13],
-                'exonerado' => $data[14],
-                'total' => $data[15],
-                'id_estado' => $data[16],
-                'id_usuario' => $data[17],
-                'created_at' => $data[18],
-                'updated_at' => $data[19],
-                // Add more fields as needed
-            ]);
+        try {
+            $file = $request->file('file');
+            $fileContents = file($file->getPathname());
+
+            foreach ($fileContents as $line) {
+                $data = str_getcsv($line);
+
+                // Validar que la línea tenga los datos necesarios
+                if (count($data) < 20) {
+                    continue;
+                }
+
+                Compra::create([
+                    'codigo_compra' => $data[1],
+                    'fecha' => $data[2],
+                    'descripcion' => $data[3],
+                    'id_categoria' => $data[4],
+                    'id_proveedor' => $data[5],
+                    'id_tipo_cuenta' => $data[6],
+                    'id_estado_cuenta' => $data[7],
+                    'fecha_pago' => $data[8],
+                    'gravado15' => $data[9],
+                    'gravado18' => $data[10],
+                    'impuesto15' => $data[11],
+                    'impuesto18' => $data[12],
+                    'exento' => $data[13],
+                    'exonerado' => $data[14],
+                    'total' => $data[15],
+                    'id_estado' => $data[16],
+                    'id_usuario' => Auth::id(),
+                ]);
+            }
+
+            return redirect()->route('compra.index')->with('message', 'Compras importadas con exito');
+        } catch (Exception $e) {
+            return redirect()->route('compra.index')->with('error', 'Error al importar: ' . $e->getMessage());
         }
-
-        return redirect()->route('compra.index')->with('message', 'Compras guardados con exito');
     }
 }

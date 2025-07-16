@@ -3,16 +3,14 @@
 import { Button } from '@/components/ui/button'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { reactive } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { CircleArrowLeft } from 'lucide-vue-next';
 import { Save } from 'lucide-vue-next';
 import { Link } from '@inertiajs/vue3'
-import { ref } from 'vue';
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, } from '@/components/ui/select'
 
-const props = defineProps({
+defineProps({
     categorias: { type: Object, required: true },
 })
 
@@ -39,8 +37,6 @@ function submit() {
     router.post('/ingreso', form)
 }
 
-console.log(props.autos);
-console.log(props.pagos_categorias);
 
 </script>
 
@@ -71,7 +67,7 @@ console.log(props.pagos_categorias);
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 

@@ -9,6 +9,7 @@ use App\Models\AutoMarca;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class AutoController extends Controller
 {
@@ -17,8 +18,7 @@ class AutoController extends Controller
      */
     public function index(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -38,13 +38,23 @@ class AutoController extends Controller
         $contador = "$contador Autos en existencia";
 
         if ($request->has("query")) {
-            $query =  $request->get("query");
-            $data = AutoResource::collection(Auto::where("descripcion", "like", "$query%")->orWhere("modelo", "like", "$query%")->orWhere("base", "like", "$query%")->where('id_estado',1)->paginate(50));
-            return Inertia::render('auto/index', compact('data', 'contador', 'tableHeaders','modulo'));
+            $query = $request->get("query");
+            $data = AutoResource::collection(
+                Auto::where('id_estado', 1)
+                    ->where(function ($q) use ($query) {
+                        $q->where("modelo", "like", "%$query%")
+                            ->orWhere("base", "like", "%$query%")
+                            ->orWhereHas('marca', function ($subQ) use ($query) {
+                                $subQ->where('descripcion', 'like', "%$query%");
+                            });
+                    })
+                    ->paginate(50)
+            );
+            return Inertia::render('auto/index', compact('data', 'contador', 'tableHeaders', 'modulo'));
         } else {
 
-            $data = AutoResource::collection(Auto::where('id_estado',1)->paginate(50));
-            return Inertia::render('auto/index', compact('data', 'contador', 'tableHeaders','modulo'));
+            $data = AutoResource::collection(Auto::where('id_estado', 1)->paginate(50));
+            return Inertia::render('auto/index', compact('data', 'contador', 'tableHeaders', 'modulo'));
         }
     }
 
@@ -56,9 +66,9 @@ class AutoController extends Controller
         $head = "Crear Auto";
         $categorias = AutoCategoria::where('id_estado', 1)->get();
         $marcas = AutoMarca::where('id_estado', 1)->get();
-        $tracciones = collect(['4x2','4x4','AWD','FWD','RWD']);
+        $tracciones = collect(['4x2', '4x4', 'AWD', 'FWD', 'RWD']);
 
-        return Inertia::render('auto/create', compact('head', 'categorias','marcas','tracciones'));
+        return Inertia::render('auto/create', compact('head', 'categorias', 'marcas', 'tracciones'));
     }
 
     /**
@@ -66,44 +76,44 @@ class AutoController extends Controller
      */
     public function store(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario = Auth::id();
+        try {
+            $id_usuario = Auth::id();
 
-        Auto::create([
-            'id_marca' => $request->id_marca,
-            'modelo' => $request->modelo,
-            'year' => $request->year,
-            'base' => "LX",
-            'traccion' => $request->traccion,
-            'cilindraje' => $request->cilindraje,
-            'combustion' => $request->combustion,
-            'id_categoria' => $request->id_categoria,
-            'id_estado' => 1,
-            'id_usuario' => $id_usuario,
-        ]);
+            Auto::create([
+                'id_marca' => $request->id_marca,
+                'modelo' => $request->modelo,
+                'year' => $request->year,
+                'base' => "LX",
+                'traccion' => $request->traccion,
+                'cilindraje' => $request->cilindraje,
+                'combustion' => $request->combustion,
+                'id_categoria' => $request->id_categoria,
+                'id_estado' => 1,
+                'id_usuario' => $id_usuario,
+            ]);
 
             return redirect()->route('auto.index')->with('message', 'Auto agregado con exito');
-
+        } catch (\Throwable $th) {
+            Log::error('Error guardando el auto: ' . $th->getMessage());
+            return redirect()->route('auto.index')->with('error', 'Error al guardar el auto: ' . $th->getMessage());
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-    }
+    public function show(string $id) {}
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -111,10 +121,9 @@ class AutoController extends Controller
         $data = Auto::findOrFail($id);
         $categorias = AutoCategoria::where('id_estado', 1)->get();
         $marcas = AutoMarca::where('id_estado', 1)->get();
-        $tracciones = collect(['4x2','4x4','AWD','FWD','RWD']);
+        $tracciones = collect(['4x2', '4x4', 'AWD', 'FWD', 'RWD']);
 
-        return Inertia::render('auto/edit', compact('data','head','categorias','marcas','tracciones'));
-
+        return Inertia::render('auto/edit', compact('data', 'head', 'categorias', 'marcas', 'tracciones'));
     }
 
     /**
@@ -122,28 +131,31 @@ class AutoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
+        try {
+            $id_usuario = Auth::id();
+            $auto = Auto::findOrFail($id);
 
-        $id_usuario = Auth::id();
-        $auto = Auto::findOrFail($id);
+            $auto->update([
+                'id_marca' => $request->id_marca,
+                'modelo' => $request->modelo,
+                'year' => $request->year,
+                'base' => "LX",
+                'traccion' => $request->traccion,
+                'cilindraje' => $request->cilindraje,
+                'combustion' => $request->combustion,
+                'id_categoria' => $request->id_categoria,
+                'id_estado' => 1,
+                'id_usuario' => $id_usuario,
+            ]);
 
-        $auto->update([
-            'id_marca' => $request->id_marca,
-            'modelo' => $request->modelo,
-            'year' => $request->year,
-            'base' => "LX",
-            'traccion' => $request->traccion,
-            'cilindraje' => $request->cilindraje,
-            'combustion' => $request->combustion,
-            'id_categoria' => $request->id_categoria,
-            'id_estado' => 1,
-            'id_usuario' => $id_usuario,
-        ]);
-
-        return redirect()->route('auto.index')->with('message', 'Auto actualizado con exito');
+            return redirect()->route('auto.index')->with('message', 'Auto actualizado con exito');
+        } catch (\Throwable $th) {
+            Log::error('Error actualizando el auto: ' . $th->getMessage());
+            return redirect()->route('auto.index')->with('error', 'Error al actualizar el auto: ' . $th->getMessage());
+        }
     }
 
     /**
@@ -151,18 +163,17 @@ class AutoController extends Controller
      */
     public function destroy(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $auto = Auto::findOrFail($id);
-        $auto-> id_estado =2;
+        $auto->id_estado = 2;
         $auto->save();
 
-        $auto = Auto::findOrFail($id);
-        $auto->delete();
+        // No es necesario hacer delete() después de cambiar el estado
+        // El soft delete ya se maneja con id_estado
 
-        return redirect()->route('auto.index')->with('message','Auto eliminado con exito');
+        return redirect()->route('auto.index')->with('message', 'Auto eliminado con exito');
     }
 }

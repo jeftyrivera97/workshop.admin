@@ -62,7 +62,7 @@ console.log(form.categoria);
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option">
+                                <SelectItem v-for="option in categorias" :value="option" :key="option.id">
                                     {{ option }}
                                 </SelectItem>
 

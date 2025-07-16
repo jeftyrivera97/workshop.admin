@@ -67,7 +67,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -95,7 +95,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Clientes</SelectLabel>
-                                <SelectItem v-for="option in clientes" :value="option.id">
+                                <SelectItem v-for="option in clientes" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -113,9 +113,9 @@ const form = useForm({
                             <SelectValue placeholder="Seleccione un Auto" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectGroup v-for="auto in autos" :value="auto.id">
+                            <SelectGroup v-for="auto in autos" :value="auto.id" :key="auto.id">
                                 <SelectLabel>Automoviles</SelectLabel>
-                                <SelectItem v-for="marca in auto.marcas" :value="auto.id">
+                                <SelectItem v-for="marca in auto.marcas" :value="auto.id" :key="marca.id">
                                     {{ marca.descripcion }} {{auto.modelo}}
                                 </SelectItem>
 
@@ -134,7 +134,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in servicios" :value="option.id">
+                                <SelectItem v-for="option in servicios" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -157,7 +157,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Tipos de Pagos</SelectLabel>
-                                <SelectItem v-for="option in pagos_categorias" :value="option.id">
+                                <SelectItem v-for="option in pagos_categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 

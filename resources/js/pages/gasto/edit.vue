@@ -11,7 +11,7 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: route('gasto.index'),
     },
 ];
-const props = defineProps({
+defineProps({
     head: { type: String, required: true },
     data: { type: Object, required: true },
     categorias: { type: Object, required: true },
@@ -21,7 +21,7 @@ const props = defineProps({
 
 <template>
 
-    <Head title="Editar Proveedor" />
+    <Head title="Editar Gasto" />
     <AppLayout :breadcrumbs="breadcrumbs">
         <div class="flex h-full flex-1 flex-col gap-4 rounded-xl p-4">
             <EditForm :data="data" :categorias="categorias" />

@@ -8,6 +8,7 @@ use App\Models\EmpleadoCategoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Log;
 
 class EmpleadoController extends Controller
 {
@@ -16,8 +17,7 @@ class EmpleadoController extends Controller
      */
     public function index(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -50,8 +50,7 @@ class EmpleadoController extends Controller
      */
     public function create()
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -66,29 +65,32 @@ class EmpleadoController extends Controller
      */
     public function store(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario = Auth::id();
-        $codigo = $request->codigo_empleado;
+        try {
+            $id_usuario = Auth::id();
+            $codigo = $request->codigo_empleado;
 
-        if (Empleado::where('codigo_empleado', $codigo)->exists()) {
+            if (Empleado::where('codigo_empleado', $codigo)->exists()) {
 
-            return redirect()->route('empleado.index')->with('message', 'Empleado NO guardado - Empleado ya existe');
+                return redirect()->route('empleado.index')->with('message', 'Empleado NO guardado - Empleado ya existe');
+            } else {
+                Empleado::create([
+                    'codigo_empleado' => $request->codigo_empleado,
+                    'descripcion' => $request->descripcion,
+                    'id_categoria' => $request->id_categoria,
+                    'telefono' => $request->telefono,
+                    'id_estado' => 1,
+                    'id_usuario' => $id_usuario,
+                ]);
 
-        } else {
-            Empleado::create([
-                'codigo_empleado' => $request->codigo_empleado,
-                'descripcion' => $request->descripcion,
-                'id_categoria' => $request->id_categoria,
-                'telefono' => $request->telefono,
-                'id_estado' => 1,
-                'id_usuario' => $id_usuario,
-            ]);
-
-            return redirect()->route('empleado.index')->with('message', 'Empleado agregado con exito');
+                return redirect()->route('empleado.index')->with('message', 'Empleado agregado con exito');
+            }
+        } catch (\Throwable $th) {
+            Log::error('Error creando el empleado: ' . $th->getMessage());
+            return redirect()->route('empleado.index')->with('error', 'Error al crear el empleado: ' . $th->getMessage());
         }
     }
 
@@ -105,8 +107,7 @@ class EmpleadoController extends Controller
      */
     public function edit(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -122,23 +123,27 @@ class EmpleadoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
-        
-        $id_usuario = Auth::id();
-        $empleado = Empleado::findOrFail($id);
 
-        $empleado->update([
-            'codigo_empleado' => $request->codigo_empleado,
-            'descripcion' => $request->descripcion,
-            'id_categoria' => $request->id_categoria,
-            'telefono' => $request->telefono,
-            'id_usuario' => $id_usuario,
-        ]);
+        try {
+            $id_usuario = Auth::id();
+            $empleado = Empleado::findOrFail($id);
 
-        return redirect()->route('empleado.index')->with('message', 'Empleado actualizado con exito');
+            $empleado->update([
+                'codigo_empleado' => $request->codigo_empleado,
+                'descripcion' => $request->descripcion,
+                'id_categoria' => $request->id_categoria,
+                'telefono' => $request->telefono,
+                'id_usuario' => $id_usuario,
+            ]);
+
+            return redirect()->route('empleado.index')->with('message', 'Empleado actualizado con exito');
+        } catch (\Throwable $th) {
+            Log::error('Error actualizando el empleado: ' . $th->getMessage());
+            return redirect()->route('empleado.index')->with('error', 'Error al actualizar el empleado: ' . $th->getMessage());
+        }
     }
 
     /**
@@ -146,13 +151,18 @@ class EmpleadoController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!Auth::check()) {
+            return redirect('/login');
+        }
+
         $empleado = Empleado::findOrFail($id);
-        $empleado-> id_estado =2;
+        $empleado->id_estado = 2;
         $empleado->save();
 
-        $empleado = Empleado::findOrFail($id);
-        $empleado->delete();
+        // Eliminar la duplicación innecesaria
+        // $empleado = Empleado::findOrFail($id);
+        // $empleado->delete();
 
-        return redirect()->route('empleado.index')->with('message','Empleado eliminado con exito');
+        return redirect()->route('empleado.index')->with('message', 'Empleado eliminado con exito');
     }
 }

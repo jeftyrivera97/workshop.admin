@@ -45,7 +45,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Marcas</SelectLabel>
-                                <SelectItem v-for="option in marcas" :value="option.id">
+                                <SelectItem v-for="option in marcas" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
                             </SelectGroup>
@@ -78,7 +78,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Tracciones</SelectLabel>
-                                <SelectItem v-for="option in tracciones" :value="option">
+                                <SelectItem v-for="option in tracciones" :value="option" :key="option.id">
                                     {{ option }}
                                 </SelectItem>
                             </SelectGroup>
@@ -121,7 +121,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 

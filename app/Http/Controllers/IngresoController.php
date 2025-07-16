@@ -15,6 +15,7 @@ use App\Models\ServicioCategoria;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class IngresoController extends Controller
 {
@@ -23,8 +24,7 @@ class IngresoController extends Controller
      */
     public function index(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
@@ -43,12 +43,12 @@ class IngresoController extends Controller
 
         if ($request->has("query")) {
             $query =  $request->get("query");
-            $data = IngresoResource::collection(Ingreso::where("descripcion", "like", "$query%")->orWhere("total", "like", "$query%")->orWhere("fecha", "like", "$query%")->where('id_estado',1)->orderBy('fecha','desc')->paginate(50));
-            return Inertia::render('ingreso/index', compact('data', 'contador', 'tableHeaders','modulo'));
+            $data = IngresoResource::collection(Ingreso::where("descripcion", "like", "$query%")->orWhere("total", "like", "$query%")->orWhere("fecha", "like", "$query%")->where('id_estado', 1)->orderBy('fecha', 'desc')->paginate(50));
+            return Inertia::render('ingreso/index', compact('data', 'contador', 'tableHeaders', 'modulo'));
         } else {
 
-            $data = IngresoResource::collection(Ingreso::where('id_estado',1)->orderBy('fecha','desc')->paginate(50));
-            return Inertia::render('ingreso/index', compact('data', 'contador', 'tableHeaders','modulo','head'));
+            $data = IngresoResource::collection(Ingreso::where('id_estado', 1)->orderBy('fecha', 'desc')->paginate(50));
+            return Inertia::render('ingreso/index', compact('data', 'contador', 'tableHeaders', 'modulo', 'head'));
         }
     }
 
@@ -57,50 +57,148 @@ class IngresoController extends Controller
      */
     public function create()
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $head = "Crear Ingreso";
-        $categorias = IngresoCategoria::where('id','!=',1)->where('id','!=',2)->where('id','!=',3)->where('id_estado',1)->get();
-        $servicios = ServicioCategoria::where('id_estado',1)->get();
-        $autos = Auto::with('marcas')->where('id_estado',1)->get();
-        $clientes = Cliente::where('id_estado',1)->get();
-        $pagos_categorias = PagoCategoria::where('id_estado',1)->get();
+        $categorias = IngresoCategoria::where('id', '!=', 1)->where('id', '!=', 2)->where('id', '!=', 3)->where('id_estado', 1)->get();
+        $servicios = ServicioCategoria::where('id_estado', 1)->get();
+        $autos = Auto::with('marcas')->where('id_estado', 1)->get();
+        $clientes = Cliente::where('id_estado', 1)->get();
+        $pagos_categorias = PagoCategoria::where('id_estado', 1)->get();
 
-        $colores = collect(['Aluminio', 'Aguacate','Almendra','Amarillo','AAmbar','Anaranjado','Arena',
-        'Azul','Azul Celeste','Azul Marino','Blanco','Blanco Hueso','Cafe','Carmesi','Chocolate',
-        'Corinto','Durazno','Escarlata','Fucsia','Gris','Hielo','Indigo','Iris','Jazmin','Lavanda','Laton',
-        'Magenta','Marmol','Marron','Morado','Mostaza','Menta','Melocoton','Naranja','Negro','negro Mate','Nogal',
-        'Ocre','Oliva','Perla','Porcelana','Purpura','Rojo','Rubi','Salmon','Tomate','Trigo','Turquesa',
-        'Uva','Verde','verde Oliva','Yema','Zanahoria','Zfiro']);
+        $colores = collect([
+            'Aluminio',
+            'Aguacate',
+            'Almendra',
+            'Amarillo',
+            'AAmbar',
+            'Anaranjado',
+            'Arena',
+            'Azul',
+            'Azul Celeste',
+            'Azul Marino',
+            'Blanco',
+            'Blanco Hueso',
+            'Cafe',
+            'Carmesi',
+            'Chocolate',
+            'Corinto',
+            'Durazno',
+            'Escarlata',
+            'Fucsia',
+            'Gris',
+            'Hielo',
+            'Indigo',
+            'Iris',
+            'Jazmin',
+            'Lavanda',
+            'Laton',
+            'Magenta',
+            'Marmol',
+            'Marron',
+            'Morado',
+            'Mostaza',
+            'Menta',
+            'Melocoton',
+            'Naranja',
+            'Negro',
+            'negro Mate',
+            'Nogal',
+            'Ocre',
+            'Oliva',
+            'Perla',
+            'Porcelana',
+            'Purpura',
+            'Rojo',
+            'Rubi',
+            'Salmon',
+            'Tomate',
+            'Trigo',
+            'Turquesa',
+            'Uva',
+            'Verde',
+            'verde Oliva',
+            'Yema',
+            'Zanahoria',
+            'Zfiro'
+        ]);
 
 
-        return Inertia::render('ingreso/create', compact('head','categorias','servicios','autos','clientes','pagos_categorias','colores'));
+        return Inertia::render('ingreso/create', compact('head', 'categorias', 'servicios', 'autos', 'clientes', 'pagos_categorias', 'colores'));
     }
 
     public function createServicio()
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $head = "Crear Ingreso";
-        $categorias = IngresoCategoria::where('id','!=',3)->where('id','!=',4)->where('id','!=',5)->where('id','!=',6)->where('id','!=',7)->where('id_estado',1)->get();
-        $servicios = ServicioCategoria::where('id_estado',1)->get();
-        $autos = Auto::with('marcas')->where('id_estado',1)->get();
-        $clientes = Cliente::where('id_estado',1)->get();
-        $pagos_categorias = PagoCategoria::where('id_estado',1)->get();
-        $colores = collect(['Aluminio', 'Aguacate','Almendra','Amarillo','AAmbar','Anaranjado','Arena',
-        'Azul','Azul Celeste','Azul Marino','Blanco','Blanco Hueso','Cafe','Carmesi','Chocolate',
-        'Corinto','Durazno','Escarlata','Fucsia','Gris','Hielo','Indigo','Iris','Jazmin','Lavanda','Laton',
-        'Magenta','Marmol','Marron','Morado','Mostaza','Menta','Melocoton','Naranja','Negro','negro Mate','Nogal',
-        'Ocre','Oliva','Perla','Porcelana','Purpura','Rojo','Rubi','Salmon','Tomate','Trigo','Turquesa',
-        'Uva','Verde','verde Oliva','Yema','Zanahoria','Zfiro']);
+        $categorias = IngresoCategoria::where('id', '!=', 3)->where('id', '!=', 4)->where('id', '!=', 5)->where('id', '!=', 6)->where('id', '!=', 7)->where('id_estado', 1)->get();
+        $servicios = ServicioCategoria::where('id_estado', 1)->get();
+        $autos = Auto::with('marcas')->where('id_estado', 1)->get();
+        $clientes = Cliente::where('id_estado', 1)->get();
+        $pagos_categorias = PagoCategoria::where('id_estado', 1)->get();
+        $colores = collect([
+            'Aluminio',
+            'Aguacate',
+            'Almendra',
+            'Amarillo',
+            'AAmbar',
+            'Anaranjado',
+            'Arena',
+            'Azul',
+            'Azul Celeste',
+            'Azul Marino',
+            'Blanco',
+            'Blanco Hueso',
+            'Cafe',
+            'Carmesi',
+            'Chocolate',
+            'Corinto',
+            'Durazno',
+            'Escarlata',
+            'Fucsia',
+            'Gris',
+            'Hielo',
+            'Indigo',
+            'Iris',
+            'Jazmin',
+            'Lavanda',
+            'Laton',
+            'Magenta',
+            'Marmol',
+            'Marron',
+            'Morado',
+            'Mostaza',
+            'Menta',
+            'Melocoton',
+            'Naranja',
+            'Negro',
+            'negro Mate',
+            'Nogal',
+            'Ocre',
+            'Oliva',
+            'Perla',
+            'Porcelana',
+            'Purpura',
+            'Rojo',
+            'Rubi',
+            'Salmon',
+            'Tomate',
+            'Trigo',
+            'Turquesa',
+            'Uva',
+            'Verde',
+            'verde Oliva',
+            'Yema',
+            'Zanahoria',
+            'Zfiro'
+        ]);
 
-        return Inertia::render('ingreso/create-servicio', compact('head','categorias','servicios','autos','clientes','pagos_categorias','colores'));
+        return Inertia::render('ingreso/create-servicio', compact('head', 'categorias', 'servicios', 'autos', 'clientes', 'pagos_categorias', 'colores'));
     }
 
 
@@ -109,55 +207,54 @@ class IngresoController extends Controller
      */
     public function store(Request $request)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario= Auth::id();
-        $categoriaSeleccionada = $request->id_categoria;
+        try {
+            $id_usuario = Auth::id();
+            $categoriaSeleccionada = $request->id_categoria;
 
-        $ingreso = Ingreso::create([
-            'descripcion' => $request->descripcion,
-            'fecha' => $request->fecha,
-            'id_categoria' => $request->id_categoria,
-            'total' => $request->total,
-            'id_estado' => 1,
-            'id_usuario' => $id_usuario,
-          ]);
-
-          $id_ingreso = $ingreso->id;
-
-
-        if ( $categoriaSeleccionada ==1 ||$categoriaSeleccionada ==2 || $categoriaSeleccionada ==3 ) {
-            $servicio = Servicio::create([
+            $ingreso = Ingreso::create([
                 'descripcion' => $request->descripcion,
-                'id_cliente' => $request->id_cliente,
-                'id_auto' => $request->id_auto,
-                'id_categoria' => $request->id_categoria_servicio,
-                'color' => $request->color,
-                'placa' => $request->placa,
-                'id_pago_categoria' => $request->id_pago_categoria,
+                'fecha' => $request->fecha,
+                'id_categoria' => $request->id_categoria,
+                'total' => $request->total,
                 'id_estado' => 1,
                 'id_usuario' => $id_usuario,
-              ]);
+            ]);
 
-              $id_servicio = $servicio->id;
+            $id_ingreso = $ingreso->id;
 
+            if ($categoriaSeleccionada == 1 || $categoriaSeleccionada == 2 || $categoriaSeleccionada == 3) {
+                $servicio = Servicio::create([
+                    'descripcion' => $request->descripcion,
+                    'id_cliente' => $request->id_cliente,
+                    'id_auto' => $request->id_auto,
+                    'id_categoria' => $request->id_categoria_servicio,
+                    'color' => $request->color,
+                    'placa' => $request->placa,
+                    'id_pago_categoria' => $request->id_pago_categoria,
+                    'id_estado' => 1,
+                    'id_usuario' => $id_usuario,
+                ]);
 
-              IngresoServicio::create([
-                'id_ingreso' => $id_ingreso,
-                'id_servicio' => $id_servicio,
-                'id_estado' => 1,
-              ]);
+                $id_servicio = $servicio->id;
 
-              return redirect()->route('ingreso.index')->with('message','Ingreso con Servicio agregado con exito');
+                IngresoServicio::create([
+                    'id_ingreso' => $id_ingreso,
+                    'id_servicio' => $id_servicio,
+                    'id_estado' => 1,
+                ]);
 
+                return redirect()->route('ingreso.index')->with('message', 'Ingreso con Servicio agregado con exito');
+            }
+
+            return redirect()->route('ingreso.index')->with('message', 'Ingreso agregado con exito');
+        } catch (\Throwable $th) {
+            Log::error('Error guardando ingreso: ' . $th->getMessage());
+            return redirect()->route('ingreso.index')->with('error', 'Error al guardar el ingreso: ' . $th->getMessage());
         }
-
-         return redirect()->route('ingreso.index')->with('message','Ingreso agregado con exito');
-
-
     }
 
     /**
@@ -173,39 +270,33 @@ class IngresoController extends Controller
      */
     public function edit(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         if (IngresoServicio::where('id_ingreso', $id)->exists()) {
 
-            $ingresoServicio = IngresoServicio::where('id_ingreso',$id)->first();
+            $ingresoServicio = IngresoServicio::where('id_ingreso', $id)->first();
             $id_servicio = $ingresoServicio->id_servicio;
 
             $data = Ingreso::findOrFail($id);
             $dataServicio = Servicio::findOrFail($id_servicio);
             $head = "Editar Ingreso con Servicio";
-            $categorias = IngresoCategoria::where('id_estado',1)->get();
-            $servicios = ServicioCategoria::where('id_estado',1)->get();
-            $autos = Auto::with('marcas')->where('id_estado',1)->get();
-            $clientes = Cliente::where('id_estado',1)->get();
-            $pagos_categorias = PagoCategoria::where('id_estado',1)->get();
+            $categorias = IngresoCategoria::where('id_estado', 1)->get();
+            $servicios = ServicioCategoria::where('id_estado', 1)->get();
+            $autos = Auto::with('marcas')->where('id_estado', 1)->get();
+            $clientes = Cliente::where('id_estado', 1)->get();
+            $pagos_categorias = PagoCategoria::where('id_estado', 1)->get();
 
-            return Inertia::render('ingreso/edit-servicio', compact('head','categorias','servicios','autos','clientes','pagos_categorias','data','dataServicio'));
-
-         }else{
+            return Inertia::render('ingreso/edit-servicio', compact('head', 'categorias', 'servicios', 'autos', 'clientes', 'pagos_categorias', 'data', 'dataServicio'));
+        } else {
 
             $head = "Editar Ingreso sin Servicio";
-            $categorias = IngresoCategoria::where('id_estado',1)->get();
+            $categorias = IngresoCategoria::where('id_estado', 1)->get();
             $data = Ingreso::findOrFail($id);
 
-            return Inertia::render('ingreso/edit', compact('head','categorias','data'));
-
-         }
-
-
-
+            return Inertia::render('ingreso/edit', compact('head', 'categorias', 'data'));
+        }
     }
 
     /**
@@ -213,57 +304,60 @@ class IngresoController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
-        $id_usuario= Auth::id();
+        try {
+            $id_usuario = Auth::id();
 
-        $categoriaSeleccionada = $request->id_categoria;
+            $categoriaSeleccionada = $request->id_categoria;
 
-        $ingreso= Ingreso::findOrFail($id);
-        $ingreso->update([
-            'descripcion' => $request->descripcion,
-            'fecha' => $request->fecha,
-            'id_categoria' => $request->id_categoria,
-            'total' => $request->total,
-          ]);
-
-          $id_ingreso = $ingreso->id;
-
-
-        if ( $categoriaSeleccionada ==1 ||$categoriaSeleccionada ==2 || $categoriaSeleccionada ==3 ) {
-
-            $ingresoServicio = IngresoServicio::where('id_ingreso',$id_ingreso)->first();
-            $id_servicio = $ingresoServicio->id_servicio;
-            $id_servicio_ingreso = $ingresoServicio->id;
-
-            $servicio= Servicio::findOrFail($id_servicio);
-            $servicio->update([
+            $ingreso = Ingreso::findOrFail($id);
+            $ingreso->update([
                 'descripcion' => $request->descripcion,
-                'id_cliente' => $request->id_cliente,
-                'id_auto' => $request->id_auto,
-                'id_categoria' => $request->id_categoria_servicio,
-                'color' => $request->color,
-                'placa' => $request->placa,
-                'id_pago_categoria' => $request->id_pago_categoria,
-              ]);
+                'fecha' => $request->fecha,
+                'id_categoria' => $request->id_categoria,
+                'total' => $request->total,
+            ]);
 
-              $id_servicio = $servicio->id;
+            $id_ingreso = $ingreso->id;
 
-              $ingreso_servicio= IngresoServicio::findOrFail($id_servicio_ingreso);
-              $ingreso_servicio->update([
-                'id_ingreso' => $id_ingreso,
-                'id_servicio' => $id_servicio,
-                'id_estado' => 1,
-              ]);
 
-              return redirect()->route('ingreso.index')->with('message','Ingreso con Servicio agregado con exito');
+            if ($categoriaSeleccionada == 1 || $categoriaSeleccionada == 2 || $categoriaSeleccionada == 3) {
 
+                $ingresoServicio = IngresoServicio::where('id_ingreso', $id_ingreso)->first();
+                $id_servicio = $ingresoServicio->id_servicio;
+                $id_servicio_ingreso = $ingresoServicio->id;
+
+                $servicio = Servicio::findOrFail($id_servicio);
+                $servicio->update([
+                    'descripcion' => $request->descripcion,
+                    'id_cliente' => $request->id_cliente,
+                    'id_auto' => $request->id_auto,
+                    'id_categoria' => $request->id_categoria_servicio,
+                    'color' => $request->color,
+                    'placa' => $request->placa,
+                    'id_pago_categoria' => $request->id_pago_categoria,
+                ]);
+
+                $id_servicio = $servicio->id;
+
+                $ingreso_servicio = IngresoServicio::findOrFail($id_servicio_ingreso);
+                $ingreso_servicio->update([
+                    'id_ingreso' => $id_ingreso,
+                    'id_servicio' => $id_servicio,
+                    'id_estado' => 1,
+                ]);
+
+                return redirect()->route('ingreso.index')->with('message', 'Ingreso con Servicio agregado con exito');
+            }
+
+            return redirect()->route('ingreso.index')->with('message', 'Ingreso agregado con exito');
+        } catch (\Throwable $th) {
+            Log::error('Error actualizando el ingreso: ' . $th->getMessage());
+            return redirect()->route('ingreso.index')->with('error', 'Error al actualizar el ingreso: ' . $th->getMessage());
         }
-
-         return redirect()->route('ingreso.index')->with('message','Ingreso agregado con exito');
     }
 
     /**
@@ -271,41 +365,35 @@ class IngresoController extends Controller
      */
     public function destroy(string $id)
     {
-        if(!Auth::check())
-        {
+        if (!Auth::check()) {
             return redirect('/login');
         }
 
         $ingreso = Ingreso::findOrFail($id);
-        $ingreso-> id_estado =2;
+        $ingreso->id_estado = 2;
         $ingreso->save();
 
-        $id_ingreso = $ingreso ->id;
+        $id_ingreso = $ingreso->id;
 
         if (IngresoServicio::where('id_ingreso', $id_ingreso)->exists()) {
 
-            $ingreso_servicio=IngresoServicio::where('id_ingreso',$id_ingreso)->first();
+            $ingreso_servicio = IngresoServicio::where('id_ingreso', $id_ingreso)->first();
             $id_ingreso_servicio = $ingreso_servicio->id;
-            $id_servicio =  $ingreso_servicio->id_servicio;
+            $id_servicio = $ingreso_servicio->id_servicio;
 
             $ingresoServicio = IngresoServicio::findOrFail($id_ingreso_servicio);
-            $ingresoServicio-> id_estado =2;
+            $ingresoServicio->id_estado = 2;
             $ingresoServicio->save();
 
             $servicio = Servicio::findOrFail($id_servicio);
-            $servicio-> id_estado =2;
+            $servicio->id_estado = 2;
             $servicio->save();
-
-
-
         }
 
+        // Comentar el delete físico si usas soft delete con id_estado
+        // $ingreso = Ingreso::findOrFail($id);
+        // $ingreso->delete();
 
-        $ingreso = Ingreso::findOrFail($id);
-        $ingreso->delete();
-
-        return redirect()->route('compra.index')->with('message','Compra eliminada con exito');
-
-
+        return redirect()->route('ingreso.index')->with('message', 'Ingreso eliminado con exito');
     }
 }

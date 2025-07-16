@@ -32,7 +32,7 @@ const form = useForm({
         <div class="grid auto-rows-min gap-4 md:grid-cols-3">
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="codigo_gasto">Codigo Compra</Label>
+                    <Label htmlFor="codigo_gasto">Codigo Gasto</Label>
                     <Input type="text" id="codigo_gasto" name="codigo_gasto" v-model="form.codigo_gasto"
                         placeholder="Genere o Ingrese Codigo Producto" required />
                 </div>
@@ -40,7 +40,7 @@ const form = useForm({
             </div>
             <div>
                 <div class="grid w-full max-w-sm items-center gap-1.5">
-                    <Label htmlFor="descripcion">Fecha de Compra</Label>
+                    <Label htmlFor="descripcion">Fecha</Label>
                     <Input type="date" id="fecha" name="fecha" v-model="form.fecha" placeholder="Ingrese Fecha"
                         required />
                 </div>
@@ -65,7 +65,7 @@ const form = useForm({
                                 <SelectLabel>Categorias</SelectLabel>
                                 <SelectItem :value="form.id_categoria.id">{{ form.id_categoria.descripcion }}
                                 </SelectItem>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias"  :key="option.id"  :value="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 

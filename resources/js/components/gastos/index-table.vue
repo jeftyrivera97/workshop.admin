@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from '@/components/ui/table'
 import DeleteOption from '@/components/shared/delete-button.vue'
 import EditOption from '@/components/shared/edit-button.vue'
@@ -36,7 +36,7 @@ const editRoute = "gasto.edit";
                     </TableCell>
                     <TableCell>{{ item.fecha }}</TableCell>
                     <TableCell>{{ item.descripcion }}</TableCell>
-                    <TableCell v-for="categoria in item.id_categoria" :key="item.id">{{ categoria.descripcion }}
+                 <TableCell v-for="categoria in item.id_categoria" :key="categoria.id">{{ categoria.descripcion }}
                     </TableCell>
                     <TableCell>L. {{ item.total }}</TableCell>
                     <TableCell class="text-right">

@@ -4,13 +4,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { reactive } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { CircleArrowLeft } from 'lucide-vue-next';
 import { Save } from 'lucide-vue-next';
 import { Link } from '@inertiajs/vue3'
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue, } from '@/components/ui/select'
-
-const props = defineProps({
+defineProps({
     proveedores: { type: Object, required: true },
     categorias: { type: Object, required: true },
 })
@@ -37,6 +36,7 @@ const form = reactive({
 
 
 function submit() {
+    console.log("Entre aqui");
     router.post('/compra', form)
 }
 
@@ -78,7 +78,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Proveedores</SelectLabel>
-                                <SelectItem v-for="option in proveedores" :value="option.id">
+                                <SelectItem v-for="option in proveedores" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 
@@ -98,7 +98,7 @@ function submit() {
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Categorias</SelectLabel>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 

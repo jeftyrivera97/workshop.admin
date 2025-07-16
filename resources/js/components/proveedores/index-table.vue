@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from '@/components/ui/table'
 import DeleteOption from '@/components/shared/delete-button.vue'
 import EditOption from '@/components/shared/edit-button.vue'

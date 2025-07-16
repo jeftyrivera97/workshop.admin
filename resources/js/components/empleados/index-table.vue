@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { Table, TableBody, TableCaption, TableCell, TableHead, TableHeader, TableRow, } from '@/components/ui/table'
 import DeleteOption from '@/components/shared/delete-button.vue'
 import EditOption from '@/components/shared/edit-button.vue'
@@ -35,7 +35,7 @@ const editRoute = "empleado.edit";
                         {{ item.codigo_empleado }}
                     </TableCell>
                     <TableCell>{{ item.descripcion }}</TableCell>
-                    <TableCell v-for="categoria in item.id_categoria" :key="item.id">{{ categoria.descripcion }}</TableCell>
+                    <TableCell v-for="categoria in item.id_categoria" :key="categoria.id">{{ categoria.descripcion }}</TableCell>
                     <TableCell>{{ item.telefono }}</TableCell>
                     <TableCell class="text-right">
                         <EditOption :id="item.id" :editRoute="editRoute" />

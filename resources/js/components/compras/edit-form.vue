@@ -73,7 +73,7 @@ const form = useForm({
                         <SelectContent>
                             <SelectGroup>
                                 <SelectLabel>Proveedores</SelectLabel>
-                                <SelectItem v-for="option in proveedores" :value="option.id">
+                                <SelectItem v-for="option in proveedores" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
                             </SelectGroup>
@@ -94,7 +94,7 @@ const form = useForm({
                                 <SelectLabel>Categorias</SelectLabel>
                                 <SelectItem :value="form.id_categoria.id">{{ form.id_categoria.descripcion }}
                                 </SelectItem>
-                                <SelectItem v-for="option in categorias" :value="option.id">
+                                <SelectItem v-for="option in categorias" :value="option.id" :key="option.id">
                                     {{ option.descripcion }}
                                 </SelectItem>
 

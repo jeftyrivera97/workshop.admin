@@ -135,15 +135,12 @@ class GastoController extends Controller
                 'id_estado' => 1,
                 'id_usuario' => $id_usuario,
             ]);
+
+            return redirect()->route('gasto.index')->with('message', 'Gasto actualizado con exito');
         } catch (Exception $e) {
-            return redirect()->route('users.create')
+            return redirect()->route('gasto.edit', $id)
                 ->with('error', 'Operacion Fallida: ' . $e->getMessage());
         }
-
-
-
-
-        return redirect()->route('gasto.index')->with('message', 'Gasto actualizado con exito');
     }
 
     /**
