@@ -229,12 +229,14 @@ class IngresoController extends Controller
             if ($categoriaSeleccionada == 1 || $categoriaSeleccionada == 2 || $categoriaSeleccionada == 3) {
                 $servicio = Servicio::create([
                     'descripcion' => $request->descripcion,
+                    'fecha' => $request->fecha,
                     'id_cliente' => $request->id_cliente,
                     'id_auto' => $request->id_auto,
                     'id_categoria' => $request->id_categoria_servicio,
                     'color' => $request->color,
                     'placa' => $request->placa,
                     'id_pago_categoria' => $request->id_pago_categoria,
+                    'total' => $request->total,
                     'id_estado' => 1,
                     'id_usuario' => $id_usuario,
                 ]);
@@ -333,12 +335,14 @@ class IngresoController extends Controller
                 $servicio = Servicio::findOrFail($id_servicio);
                 $servicio->update([
                     'descripcion' => $request->descripcion,
+                    'fecha' => $request->fecha,
                     'id_cliente' => $request->id_cliente,
                     'id_auto' => $request->id_auto,
                     'id_categoria' => $request->id_categoria_servicio,
                     'color' => $request->color,
                     'placa' => $request->placa,
                     'id_pago_categoria' => $request->id_pago_categoria,
+                    'total' => $request->total,
                 ]);
 
                 $id_servicio = $servicio->id;

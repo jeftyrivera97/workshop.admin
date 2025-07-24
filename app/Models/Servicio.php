@@ -16,7 +16,7 @@ class Servicio extends Model
     use HasFactory;
     protected $table="servicios";
     protected $primaryKey = 'id';
-    protected $fillable = ['descripcion','id_cliente','id_auto','id_categoria','color','placa','id_pago_categoria','id_estado','id_usuario','created_at','updated_at'];
+    protected $fillable = ['fecha','descripcion','id_cliente','id_auto','id_categoria','color','placa','id_pago_categoria','total','id_estado','id_usuario','created_at','updated_at'];
 
     public function estados(): HasMany
     {
